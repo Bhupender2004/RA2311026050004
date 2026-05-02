@@ -49,9 +49,19 @@ export default function NotificationCard({ type, title, message, timestamp, isRe
     >
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="caption" color="text.secondary">
-            {new Date(timestamp).toLocaleString()}
-          </Typography>
+          <Box sx={{ 
+            bgcolor: 'background.paper', 
+            px: 1, 
+            py: 0.25, 
+            borderRadius: 1, 
+            border: '1px solid', 
+            borderColor: 'divider',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+          }}>
+            <Typography variant="caption" color="text.secondary" fontWeight="medium">
+              {new Date(timestamp).toLocaleString()}
+            </Typography>
+          </Box>
           <Chip 
             icon={getIcon()} 
             label={type} 
