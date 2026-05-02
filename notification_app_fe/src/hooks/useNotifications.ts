@@ -13,6 +13,10 @@ interface UseNotificationsResult {
 // Use the Next.js rewrite configured in next.config.ts to avoid CORS errors
 const API_URL = '/api/evaluation-service/notifications';
 
+// Session-level flag to remember if the API rejected our request due to auth.
+// Prevents spamming the browser console with 401 network errors on every filter/page click.
+let isApiUnauthorized = false;
+
 export function useNotifications(): UseNotificationsResult {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -21,6 +25,30 @@ export function useNotifications(): UseNotificationsResult {
   const fetchNotifications = useCallback(async (options: { limit?: number; page?: number; type?: string } = {}) => {
     setLoading(true);
     setError(null);
+
+    const loadSampleData = () => {
+      const sampleData: Notification[] = [
+        { id: '1', type: 'Placement', title: 'Placement Drive 2026', message: 'TCS is visiting campus on Monday.', timestamp: new Date().toISOString(), isRead: false },
+        { id: '2', type: 'Event', title: 'Tech Symposium', message: 'Annual tech symposium is scheduled for next month.', timestamp: new Date(Date.now() - 86400000).toISOString(), isRead: false },
+        { id: '3', type: 'Result', title: 'Semester 4 Results', message: 'Your semester 4 results have been declared.', timestamp: new Date(Date.now() - 172800000).toISOString(), isRead: true },
+        { id: '4', type: 'Placement', title: 'Resume Shortlist', message: 'Your resume has been shortlisted by Amazon.', timestamp: new Date(Date.now() - 3600000).toISOString(), isRead: false },
+      ];
+      
+      let filteredSample = sampleData;
+      if (options.type && options.type !== 'All') {
+        filteredSample = sampleData.filter(m => m.type === options.type);
+      }
+      setNotifications(filteredSample);
+      setError('Unable to fetch notifications from the protected API. Showing sample notifications for demonstration.');
+      setLoading(false);
+    };
+
+    // If we already failed auth once during this session, do not hit the API again.
+    if (isApiUnauthorized) {
+      loadSampleData();
+      return;
+    }
+
     try {
       const params = new URLSearchParams();
       if (options.limit) params.append('limit', options.limit.toString());
@@ -35,26 +63,18 @@ export function useNotifications(): UseNotificationsResult {
       setNotifications(results);
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
-        logger.warn('Protected API returned 401. Loading sample fallback data.');
-        const sampleData: Notification[] = [
-          { id: '1', type: 'Placement', title: 'Placement Drive 2026', message: 'TCS is visiting campus on Monday.', timestamp: new Date().toISOString(), isRead: false },
-          { id: '2', type: 'Event', title: 'Tech Symposium', message: 'Annual tech symposium is scheduled for next month.', timestamp: new Date(Date.now() - 86400000).toISOString(), isRead: false },
-          { id: '3', type: 'Result', title: 'Semester 4 Results', message: 'Your semester 4 results have been declared.', timestamp: new Date(Date.now() - 172800000).toISOString(), isRead: true },
-          { id: '4', type: 'Placement', title: 'Resume Shortlist', message: 'Your resume has been shortlisted by Amazon.', timestamp: new Date(Date.now() - 3600000).toISOString(), isRead: false },
-        ];
-        
-        let filteredSample = sampleData;
-        if (options.type && options.type !== 'All') {
-          filteredSample = sampleData.filter(m => m.type === options.type);
-        }
-        setNotifications(filteredSample);
-        setError('Unable to fetch notifications from the protected API. Showing sample notifications for demonstration.');
+        logger.warn('Protected API returned 401. Switching to sample fallback data permanently for this session.');
+        isApiUnauthorized = true;
+        loadSampleData();
       } else {
         logger.error('Failed to load notifications from API', err);
         setError('Failed to load notifications. Please try again later.');
       }
     } finally {
-      setLoading(false);
+      // loadSampleData already unsets loading, so we only unset if we didn't call it.
+      if (!isApiUnauthorized) {
+        setLoading(false);
+      }
     }
   }, []);
 
