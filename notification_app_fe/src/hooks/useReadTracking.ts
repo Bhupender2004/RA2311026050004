@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '../../../logging_middleware/logger';
 
 export function useReadTracking() {
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
@@ -9,9 +10,10 @@ export function useReadTracking() {
       const stored = localStorage.getItem('read_notifications');
       if (stored) {
         setReadIds(new Set(JSON.parse(stored)));
+        logger.info('Successfully loaded read notifications state from local storage');
       }
     } catch (e) {
-      console.error('Failed to parse read notifications', e);
+      logger.error('Failed to parse read notifications from local storage', e);
     }
   }, []);
 

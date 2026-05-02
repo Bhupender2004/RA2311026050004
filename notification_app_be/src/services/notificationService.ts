@@ -1,15 +1,17 @@
 import axios from 'axios';
 import type { Notification, FetchOptions } from '../types/notification.js';
 import { getPriorityScore } from './../utils/priority.js';
+import { logger } from '../../../logging_middleware/logger.js';
 
 const API_URL = 'http://20.207.122.201/evaluation-service/notifications';
 
 export const fetchNotifications = async (options: FetchOptions = {}): Promise<Notification[]> => {
   try {
     const { data } = await axios.get(API_URL, { params: options });
+    logger.info('Successfully fetched notifications from backend API');
     return Array.isArray(data) ? data : data?.data || [];
-  } catch (error) {
-    console.error('Failed to fetch notifications:', error);
+  } catch (error: any) {
+    logger.error('Failed to fetch notifications from backend API', error);
     return [];
   }
 };

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Notification } from '../components/NotificationList';
+import { logger } from '../../../logging_middleware/logger';
 
 interface UseNotificationsResult {
   notifications: Notification[];
@@ -30,9 +31,11 @@ export function useNotifications(): UseNotificationsResult {
       
       // Handle varied possible API data shapes
       const results = Array.isArray(data) ? data : data?.data || [];
+      logger.info(`Fetched ${results.length} notifications via API successfully`);
       setNotifications(results);
     } catch (err: any) {
       if (err.response?.status === 401) {
+        logger.warn('Protected API returned 401. Loading sample fallback data.');
         const sampleData: Notification[] = [
           { id: '1', type: 'Placement', title: 'Placement Drive 2026', message: 'TCS is visiting campus on Monday.', timestamp: new Date().toISOString(), isRead: false },
           { id: '2', type: 'Event', title: 'Tech Symposium', message: 'Annual tech symposium is scheduled for next month.', timestamp: new Date(Date.now() - 86400000).toISOString(), isRead: false },
@@ -47,6 +50,7 @@ export function useNotifications(): UseNotificationsResult {
         setNotifications(filteredSample);
         setError('Unable to fetch notifications from the protected API. Showing sample notifications for demonstration.');
       } else {
+        logger.error('Failed to load notifications from API', err);
         setError('Failed to load notifications. Please try again later.');
       }
     } finally {
