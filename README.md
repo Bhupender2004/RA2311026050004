@@ -2,6 +2,10 @@
 
 A clean, responsive, and realistic frontend assessment project built with Next.js App Router, Material UI, and TypeScript.
 
+## Screenshot
+
+![Dashboard Screenshot](./assets/dashboard_screenshot.png)
+
 ## Project Structure
 * `notification_app_fe/`: The main Next.js frontend application.
 * `notification_app_be/`: Lightweight TypeScript helper modules for standalone priority/sorting logic.
