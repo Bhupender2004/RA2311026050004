@@ -1,0 +1,9 @@
+{
+  "name": "notification-workspace",
+  "private": true,
+  "workspaces": [
+    "notification_app_fe",
+    "notification_app_be",
+    "logging_middleware"
+  ]
+}
