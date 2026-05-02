@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { Notification } from '../components/NotificationList';
 import { logger } from '../logging_middleware/logger';
@@ -33,8 +33,8 @@ export function useNotifications(): UseNotificationsResult {
       const results = Array.isArray(data) ? data : data?.data || [];
       logger.info(`Fetched ${results.length} notifications via API successfully`);
       setNotifications(results);
-    } catch (err: any) {
-      if (err.response?.status === 401) {
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
         logger.warn('Protected API returned 401. Loading sample fallback data.');
         const sampleData: Notification[] = [
           { id: '1', type: 'Placement', title: 'Placement Drive 2026', message: 'TCS is visiting campus on Monday.', timestamp: new Date().toISOString(), isRead: false },

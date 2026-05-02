@@ -9,6 +9,7 @@ export function useReadTracking() {
     try {
       const stored = localStorage.getItem('read_notifications');
       if (stored) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setReadIds(new Set(JSON.parse(stored)));
         logger.info('Successfully loaded read notifications state from local storage');
       }
