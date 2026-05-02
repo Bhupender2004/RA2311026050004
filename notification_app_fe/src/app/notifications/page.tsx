@@ -8,11 +8,11 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useReadTracking } from '@/hooks/useReadTracking';
 
 export default function NotificationsPage() {
-  const { notifications, loading, error, fetchNotifications } = useNotifications();
+  const { notifications, loading, error, totalPages, fetchNotifications } = useNotifications();
   const { readIds, markAsRead } = useReadTracking();
   const [filter, setFilter] = useState<FilterType>('All');
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const limit = 5;
 
   useEffect(() => {
     fetchNotifications({ limit, page, type: filter });
@@ -44,11 +44,10 @@ export default function NotificationsPage() {
         onMarkAsRead={markAsRead}
       />
       
-      {!loading && !error && notifications.length > 0 && (
+      {!loading && !error && notifications.length > 0 && totalPages > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          {/* Note: In a real app we'd use the total pages provided by API. Hardcoding 5 for demo interaction */}
           <Pagination 
-            count={5} 
+            count={totalPages} 
             page={page} 
             onChange={handlePageChange} 
             color="primary" 
