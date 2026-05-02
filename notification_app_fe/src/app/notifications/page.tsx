@@ -20,7 +20,7 @@ export default function NotificationsPage() {
 
   const handleFilterChange = (newFilter: FilterType) => {
     setFilter(newFilter);
-    setPage(1); // Reset to first page on filter change
+    setPage(1);
   };
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {

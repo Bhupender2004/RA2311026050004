@@ -1,7 +1,3 @@
-/**
- * Lightweight cross-environment logging utility.
- * Replaces console.log/error/warn with process.stdout/stderr where available.
- */
 export const logger = {
   info: (message: string, meta?: any) => {
     const output = `[INFO] ${new Date().toISOString()} - ${message} ${meta ? JSON.stringify(meta) : ''}\n`;

@@ -22,12 +22,10 @@ export const getTopNotifications = async (options: FetchOptions = {}): Promise<N
   return notifications.sort((a, b) => {
     const priorityDiff = getPriorityScore(b.type) - getPriorityScore(a.type);
     
-    // Sort by priority first
     if (priorityDiff !== 0) {
       return priorityDiff;
     }
     
-    // Fallback to latest timestamp
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
 };

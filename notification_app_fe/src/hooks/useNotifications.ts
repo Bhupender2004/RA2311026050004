@@ -11,11 +11,8 @@ interface UseNotificationsResult {
   fetchNotifications: (options?: { limit?: number; page?: number; type?: string }) => Promise<void>;
 }
 
-// Use the Next.js rewrite configured in next.config.ts to avoid CORS errors
 const API_URL = '/api/evaluation-service/notifications';
 
-// Session-level flag to remember if the API rejected our request due to auth.
-// Prevents spamming the browser console with 401 network errors on every filter/page click.
 let isApiUnauthorized = false;
 
 export function useNotifications(): UseNotificationsResult {
@@ -29,7 +26,6 @@ export function useNotifications(): UseNotificationsResult {
     setError(null);
 
     const loadSampleData = () => {
-      // 12 realistic notifications covering all required types
       const sampleData: Notification[] = [
         { id: '1', type: 'Placement', title: 'TCS Placement Drive', message: 'TCS is visiting campus on Monday for the 2026 batch. Register now.', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), isRead: false },
         { id: '2', type: 'Placement', title: 'Amazon Shortlist', message: 'Congratulations! Your resume has been shortlisted for the final interview round.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), isRead: false },
@@ -47,7 +43,6 @@ export function useNotifications(): UseNotificationsResult {
         { id: '12', type: 'Event', title: 'Cloud Computing Workshop', message: 'AWS Student Club is hosting a hands-on workshop on serverless architecture.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), isRead: true },
       ];
       
-      // Sort globally by timestamp descending (latest first)
       sampleData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
       let filteredSample = sampleData;
@@ -55,7 +50,6 @@ export function useNotifications(): UseNotificationsResult {
         filteredSample = sampleData.filter(m => m.type === options.type);
       }
 
-      // Pagination calculation
       const limit = options.limit || 5;
       const page = options.page || 1;
       const totalPagesCalc = Math.max(1, Math.ceil(filteredSample.length / limit));
@@ -67,7 +61,6 @@ export function useNotifications(): UseNotificationsResult {
       setLoading(false);
     };
 
-    // If we already failed auth once during this session, do not hit the API again.
     if (isApiUnauthorized) {
       loadSampleData();
       return;
@@ -81,12 +74,10 @@ export function useNotifications(): UseNotificationsResult {
 
       const { data } = await axios.get(API_URL, { params });
       
-      // Handle varied possible API data shapes
       const results = Array.isArray(data) ? data : data?.data || [];
       logger.info(`Fetched ${results.length} notifications via API successfully`);
       
       setNotifications(results);
-      // Hardcode total pages since API doesn't return metadata currently
       setTotalPages(Math.ceil(results.length / (options.limit || 5)));
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
@@ -98,7 +89,6 @@ export function useNotifications(): UseNotificationsResult {
         setError('Failed to load notifications. Please try again later.');
       }
     } finally {
-      // loadSampleData already unsets loading, so we only unset if we didn't call it.
       if (!isApiUnauthorized) {
         setLoading(false);
       }

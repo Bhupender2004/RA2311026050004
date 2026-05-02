@@ -6,7 +6,6 @@ import NotificationList, { NotificationType } from '@/components/NotificationLis
 import { useNotifications } from '@/hooks/useNotifications';
 import { useReadTracking } from '@/hooks/useReadTracking';
 
-// Simple priority calculator to handle local sorting
 const getPriorityScore = (type: NotificationType): number => {
   const priorities: Record<NotificationType, number> = {
     Placement: 3,
@@ -21,24 +20,19 @@ export default function PriorityInboxPage() {
   const { readIds, markAsRead, markAllAsRead } = useReadTracking();
 
   useEffect(() => {
-    // Fetch a larger batch for the priority inbox to sort correctly
-    // We omit pagination here intentionally to get a broader list for sorting priority.
     fetchNotifications({ limit: 50 });
   }, [fetchNotifications]);
 
   const sortedNotifications = useMemo(() => {
     if (!notifications || notifications.length === 0) return [];
     
-    // Create a shallow copy before sorting so we don't mutate the original state array
     return [...notifications].sort((a, b) => {
       const priorityDiff = getPriorityScore(b.type) - getPriorityScore(a.type);
       
-      // Sort by priority first (Descending)
       if (priorityDiff !== 0) {
         return priorityDiff;
       }
       
-      // Sort by latest timestamp (Descending)
       const timeA = new Date(a.timestamp).getTime();
       const timeB = new Date(b.timestamp).getTime();
       
