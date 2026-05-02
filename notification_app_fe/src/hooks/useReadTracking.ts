@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { logger } from '../../../logging_middleware/logger';
+import { logger } from '../logging_middleware/logger';
 
 export function useReadTracking() {
   const [readIds, setReadIds] = useState<Set<string>>(new Set());

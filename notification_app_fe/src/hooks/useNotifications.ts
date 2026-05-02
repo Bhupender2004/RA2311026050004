@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Notification } from '../components/NotificationList';
-import { logger } from '../../../logging_middleware/logger';
+import { logger } from '../logging_middleware/logger';
 
 interface UseNotificationsResult {
   notifications: Notification[];

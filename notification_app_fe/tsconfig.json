@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "../../../logging_middleware/logger": ["../logging_middleware/logger.ts"]
     }
   },
   "include": [

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Notification, FetchOptions } from '../types/notification.js';
 import { getPriorityScore } from './../utils/priority.js';
-import { logger } from '../../../logging_middleware/logger.js';
+import { logger } from '../logging_middleware/logger.js';
 
 const API_URL = 'http://20.207.122.201/evaluation-service/notifications';
 
